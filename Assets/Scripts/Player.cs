@@ -5,21 +5,19 @@ using UnityEngine;
 
 public class Player : NetworkBehaviour
 {
-    
+
     [SyncVar(hook = nameof(OnHolaCountChange))]
     int holaCount = 0;
-    void HandleMovement() {
-        if (isLocalPlayer) {
-            float moveHorizontal = Input.GetAxis("Horizontal");
-            float moveVertical = Input.GetAxis("Vertical");
-            Vector3 movement = new Vector3(moveHorizontal * 0.1f, moveVertical * 0.1f, 0);
-            transform.position = transform.position + movement;
-        }
-    }
-    
-    void Update() {
-        HandleMovement();
 
+
+    private InputSystem controls = null;
+    [SerializeField] private float movementSpeed = 5f;
+    private void Awake() => controls = new InputSystem();
+    void OnEnable() => controls.Player.Enable();
+    void OnDisable() => controls.Player.Disable();
+
+
+    void Update() {
         if (isLocalPlayer && Input.GetKeyDown("x")) {
             Debug.Log("Sending Hola to Server");
             Hola();
@@ -45,5 +43,19 @@ public class Player : NetworkBehaviour
 
     void OnHolaCountChange(int oldCount, int newCount) {
         Debug.Log($"We had {oldCount} holas, but now we have {newCount}");
+    }
+
+    void Move()
+    {
+        var movementInput = controls.Player.Movement.ReadValue<Vector2>();
+
+        var movement = new Vector3();
+        movement.x = movementInput.x;
+        movement.z = movementInput.y;
+
+        movement.Normalize();
+
+        transform.Translate(movement * movementSpeed * Time.deltaTime);
+
     }
 }
