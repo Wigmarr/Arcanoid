@@ -14,6 +14,7 @@ namespace Mirror.Examples.Pong
 
         public override void OnServerAddPlayer(NetworkConnection conn)
         {
+            autoCreatePlayer = true;
             // add player at correct spawn position
             Transform start = numPlayers == 0 ? leftRacketSpawn : rightRacketSpawn;
             GameObject player = Instantiate(playerPrefab, start.position, start.rotation);

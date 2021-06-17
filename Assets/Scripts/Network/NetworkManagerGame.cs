@@ -3,102 +3,125 @@ using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
+using UnityEngine.UI;
 using Mirror;
 
-public class NetworkManagerGame: NetworkManager
+public class NetworkManagerGame: NetworkRoomManager
 {
-    private const string Message = "Playr disconnected";
-    [SerializeField] private int minPlayers = 2;
-    [Scene] [SerializeField] private string menuScene = string.Empty;
-
-    [Header("Room")]
-    [SerializeField] private NetworkRoomPlayer roomPlayerPrefab = null;
-
-    public static event Action OnClientConnected;
-    public static event Action OnClientDisconnected;
-
-    public List<NetworkRoomPlayer> RoomPlayers { get; } = new List<NetworkRoomPlayer>();
-
-    public override void OnStartServer()
+    [Header("Spawner Setup")]
+    [Tooltip("PowerUp Prefab for the Spawner")]
+    [SerializeField] private GameObject powerUpPrefab;
+    public override void OnRoomServerSceneChanged(string sceneName)
     {
-        Debug.Log("Server started!");
-        // Загрузка всех объектов из папки SpawnablePrefabs
-        spawnPrefabs = Resources.LoadAll<GameObject>("SpawnablePrefabs").ToList();
-    }
-
-    public override void OnStartClient()
-    {
-        var spawnablePrefabs = Resources.LoadAll<GameObject>("SpawnablePrefabs");
-        foreach (var prefab in spawnablePrefabs)
+        // spawn the initial batch of Rewards
+        if (sceneName == RoomScene)
         {
-            ClientScene.RegisterPrefab(prefab);
+        
+         //   LobbyMenuManager.OnStartClicked += startGame;
+        }
+       
+        if (sceneName == GameplayScene)
+        {
+
+            // Spawner.InitialSpawn();
         }
     }
-    public override void OnServerConnect(NetworkConnection conn)
-    {
-        if (numPlayers >= maxConnections)
-        {
-            conn.Disconnect();
-            return;
-        }
-        if (SceneManager.GetActiveScene().name != menuScene)
-        {
-            conn.Disconnect();
-            return;
-        }
-    }
-    public override void OnServerAddPlayer(NetworkConnection conn)
-    {
-        if (SceneManager.GetActiveScene().name == menuScene)
-        {
-            bool isLeader = RoomPlayers.Count == 0;
+  
 
-            NetworkRoomPlayer roomPlayerInstance = Instantiate(roomPlayerPrefab);
-            roomPlayerInstance.IsLeader = isLeader;
-            NetworkServer.AddPlayerForConnection(conn, roomPlayerInstance.gameObject);
-        }
-    }
-    public override void OnStopServer()
+    public override void OnRoomClientSceneChanged(NetworkConnection conn)
     {
-        RoomPlayers.Clear();
+        if (IsSceneActive(RoomScene))
+        {
+            
+        }
     }
 
-    public override void OnServerDisconnect(NetworkConnection conn)
+    public override void OnRoomServerConnect(NetworkConnection conn)
     {
-        if (conn.identity != null)
-        {
-            var player = conn.identity.GetComponent<NetworkRoomPlayer>();
-            RoomPlayers.Remove(player);
-            NotifyPlayersOfReadyState();
-        }
-        base.OnServerDisconnect(conn);
+
+        if (numPlayers >= maxConnections) { conn.Disconnect(); return; }
+
     }
+
+
+
+    public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnection conn, GameObject roomPlayer, GameObject gamePlayer)
+    {
+        //PlayerScore playerScore = gamePlayer.GetComponent<PlayerScore>();
+        //playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
+        return true;
+    }
+
+    public override void OnRoomStopClient()
+    {
+        // Demonstrates how to get the Network Manager out of DontDestroyOnLoad when
+        // going to the offline scene to avoid collision with the one that lives there.
+
+        if (gameObject.scene.name == "DontDestroyOnLoad" && !string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().path != offlineScene)
+            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+    }
+
+    public override void OnRoomStopServer()
+    {
+        // Demonstrates how to get the Network Manager out of DontDestroyOnLoad when
+        // going to the offline scene to avoid collision with the one that lives there.
+        if (gameObject.scene.name == "DontDestroyOnLoad" && !string.IsNullOrEmpty(offlineScene) && SceneManager.GetActiveScene().path != offlineScene)
+            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetActiveScene());
+
+        base.OnRoomStopServer();
+    }
+
+    public override void OnRoomStartHost()
+    {
+ 
+        ServerChangeScene(RoomScene);
+        
+    }
+
+    public override void OnRoomServerAddPlayer(NetworkConnection conn)
+    { 
+        base.OnRoomServerAddPlayer(conn);
+    }
+    public override void OnRoomClientConnect(NetworkConnection conn)
+    {
+        base.OnRoomClientConnect(conn);
+    }
+
     public override void OnClientConnect(NetworkConnection conn)
     {
         base.OnClientConnect(conn);
-        OnClientConnected?.Invoke();
-    }
-    public override void OnClientDisconnect(NetworkConnection conn)
-    {
-        base.OnClientDisconnect(conn);
-        OnClientDisconnected?.Invoke();
     }
 
-    public void NotifyPlayersOfReadyState()
+    public override void OnRoomClientDisconnect(NetworkConnection conn)
     {
-        foreach (var player in RoomPlayers)
-        {
-            player.HandleReadyToStart(IsReadyToStart());
+        base.OnRoomClientDisconnect(conn);
+
+    }
+
+    public override void OnRoomServerPlayersReady()
+    {
+
+        if (allPlayersReady && roomSlots[0].isLocalPlayer){
+            LobbyMenuManager.instance.setStartActive(true);
         }
     }
 
-    private bool IsReadyToStart()
+    
+
+    public override void OnRoomServerPlayersNotReady()
     {
-        if (numPlayers < minPlayers) { return false; }
-        foreach (var player in RoomPlayers)
+        if (roomSlots[0].isLocalPlayer)
         {
-            if (!player.IsReady) { return false; }
+            LobbyMenuManager.instance.setStartActive(false);
         }
-        return true;
     }
+
+    public override void OnServerReady(NetworkConnection conn)
+    {
+        base.OnServerReady(conn);
+    }
+
+
+
 }

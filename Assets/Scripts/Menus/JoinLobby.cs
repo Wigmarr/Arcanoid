@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HostLobbyMenu : MonoBehaviour
+public class JoinLobby : MonoBehaviour
 {
     // Start is called before the first frame update
     void Start()
