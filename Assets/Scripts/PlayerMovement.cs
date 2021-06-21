@@ -9,7 +9,6 @@ public class PlayerMovement : NetworkBehaviour
     [SerializeField] private CharacterController controller = null;
     [SerializeField] private Camera camera = null;
     [SerializeField] private GameObject shield = null;
-    private Rigidbody rb;
     private Vector2 previousInput;
     private Quaternion cameraDefRot;
     private InputSystem controls;
@@ -31,12 +30,12 @@ public class PlayerMovement : NetworkBehaviour
     {
         if (isLocalPlayer)
         {
+            
             enabled = true;
             Controls.Player.Movement.performed += ctx => SetMovement(ctx.ReadValue<Vector2>());
             Controls.Player.Movement.canceled += ctx => ResetMovement();
             camera.enabled = true;
             camera.gameObject.SetActive(true);
-            rb = gameObject.GetComponent<Rigidbody>();
             camera.tag = "MainCamera";
         }
 

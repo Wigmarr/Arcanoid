@@ -30,6 +30,7 @@ public class NetworkRoomPlayerGame : NetworkRoomPlayer
     void startGame()
     {
         Room.ServerChangeScene(Room.GameplayScene);
+        
     }
 
     public override void OnStartClient()
@@ -74,7 +75,7 @@ public class NetworkRoomPlayerGame : NetworkRoomPlayer
 
     private NetworkManagerGame room;
 
-    private NetworkManagerGame Room
+    public NetworkManagerGame Room
     {
         get
         {

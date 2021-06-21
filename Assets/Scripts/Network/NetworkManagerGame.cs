@@ -12,6 +12,16 @@ public class NetworkManagerGame: NetworkRoomManager
     [Header("Spawner Setup")]
     [Tooltip("PowerUp Prefab for the Spawner")]
     [SerializeField] private GameObject powerUpPrefab;
+
+    private void Start()
+    {
+    if (autoStartServerBuild)
+    {
+       
+        StartServer();
+        
+    }
+}
     public override void OnRoomServerSceneChanged(string sceneName)
     {
         // spawn the initial batch of Rewards
@@ -76,7 +86,13 @@ public class NetworkManagerGame: NetworkRoomManager
     {
  
         ServerChangeScene(RoomScene);
-        
+
+    }
+
+    public override void OnStartServer()
+    {
+        base.OnStartServer();
+        ServerChangeScene(RoomScene);
     }
 
     public override void OnRoomServerAddPlayer(NetworkConnection conn)
@@ -104,6 +120,10 @@ public class NetworkManagerGame: NetworkRoomManager
 
         if (allPlayersReady && roomSlots[0].isLocalPlayer){
             LobbyMenuManager.instance.setStartActive(true);
+        }
+        if (autoStartServerBuild && allPlayersReady)
+        {
+            ServerChangeScene(GameplayScene);
         }
     }
 

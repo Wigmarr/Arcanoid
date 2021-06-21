@@ -14,27 +14,30 @@ public class Ball : NetworkBehaviour
    {
         Collider bounceSurface = collision.collider;
 
-
-        if (bounceSurface != null)
+        if (!isServerOnly)
         {
-            if (collision.gameObject.tag == "Block")
+            if (bounceSurface != null)
             {
-                GameObject localPlayer = ClientScene.localPlayer.gameObject;
-                localPlayer.GetComponent<PlayerMovement>().DestroyOnServer(collision.gameObject);
+                if (collision.gameObject.tag == "Block")
+                {
+                    GameObject localPlayer = ClientScene.localPlayer.gameObject;
+                    if (localPlayer != null) localPlayer.GetComponent<PlayerMovement>().DestroyOnServer(collision.gameObject);
+                }
+                if (prevMoveDir == Vector3.zero)
+                {
+
+                    moveDir = collision.GetContact(0).normal.normalized;
+
+
+                    // Debug.Log("Bounce Surf: " + bounceSurface.velocity);
+                    return;
+                }
+                moveDir = Vector3.Reflect(prevMoveDir, collision.GetContact(0).normal).normalized;
             }
-            if (prevMoveDir == Vector3.zero)
-            {
-
-                moveDir = collision.GetContact(0).normal.normalized;
-
-                
-               // Debug.Log("Bounce Surf: " + bounceSurface.velocity);
-                return;
-            }
-            moveDir = Vector3.Reflect(prevMoveDir, collision.GetContact(0).normal).normalized;
-
-            
         }
+        
+  
+        
 
     }
     private void Start()

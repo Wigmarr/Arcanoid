@@ -230,13 +230,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dontDestroyOnLoad: 1
   runInBackground: 1
-  autoStartServerBuild: 1
+  autoStartServerBuild: 0
   showDebugMessages: 0
   serverTickRate: 30
   offlineScene: 
   onlineScene: 
   transport: {fileID: 229371136}
-  networkAddress: localhost
+  networkAddress: 109.167.133.10
   maxConnections: 10
   disconnectInactiveConnections: 0
   disconnectInactiveTimeout: 60
@@ -246,7 +246,7 @@ MonoBehaviour:
   autoCreatePlayer: 1
   playerSpawnMethod: 0
   spawnPrefabs:
-  - {fileID: 0}
+  - {fileID: 7213355584921133638, guid: 6488bd4f5d3a6f84c8397170e22413de, type: 3}
   showRoomGUI: 0
   minPlayers: 1
   roomPlayerPrefab: {fileID: 460706866856382304, guid: c73c2162ca1a91c4b9a29f82a4ae34fc,
@@ -2444,7 +2444,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1317362832}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -15.9514065, y: -16.78114, z: -9.018445}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
